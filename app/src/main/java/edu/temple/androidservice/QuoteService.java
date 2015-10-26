@@ -2,8 +2,6 @@ package edu.temple.androidservice;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -27,36 +25,31 @@ public class QuoteService extends IntentService {
     }
 
     public void getQuote(final String symbol) {
-        Thread t = new Thread() {
-            @Override
-            public void run() {
 
-                URL stockQuoteUrl;
+        URL stockQuoteUrl;
 
-                try {
+        try {
 
-                    stockQuoteUrl = new URL("http://finance.yahoo.com/webservice/v1/symbols/" + symbol + "/quote?format=json");
+            stockQuoteUrl = new URL("http://finance.yahoo.com/webservice/v1/symbols/" + symbol + "/quote?format=json");
 
-                    BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(
-                                    stockQuoteUrl.openStream()));
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(
+                            stockQuoteUrl.openStream()));
 
-                    String response = "", tmpResponse;
+            String response = "", tmpResponse;
 
-                    tmpResponse = reader.readLine();
-                    while (tmpResponse != null) {
-                        response = response + tmpResponse;
-                        tmpResponse = reader.readLine();
-                    }
-
-                    JSONObject stockObject = new JSONObject(response);
-                    Log.d("Saved stock data", stockObject.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            tmpResponse = reader.readLine();
+            while (tmpResponse != null) {
+                response = response + tmpResponse;
+                tmpResponse = reader.readLine();
             }
-        };
-        t.start();
+
+            JSONObject stockObject = new JSONObject(response);
+            Log.d("Saved stock data", stockObject.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
