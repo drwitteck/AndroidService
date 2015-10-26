@@ -58,7 +58,10 @@ public class QuoteService extends Service {
                         }
 
                         JSONObject stockObject = new JSONObject(response);
-                        Log.d("Saved stock data", stockObject.toString());
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction("ACTION_BROADCAST_QUOTE");
+                        broadcastIntent.putExtra("stock_data", stockObject.toString());
+                        sendBroadcast(broadcastIntent);
                         Thread.sleep(2000);
                     }
                 } catch (Exception e) {
