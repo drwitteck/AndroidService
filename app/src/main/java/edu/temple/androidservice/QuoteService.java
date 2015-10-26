@@ -1,10 +1,11 @@
 package edu.temple.androidservice;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -12,21 +13,22 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-public class QuoteService extends IntentService {
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     */
-    public QuoteService() {
-        super("QuoteService");
-    }
+public class QuoteService extends Service {
+
+    IBinder quoteBinder = new QuoteBinder();
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        getQuote(intent.getStringExtra("stock_symbol"));
+    public IBinder onBind(Intent intent) {
+        return quoteBinder;
     }
 
-    public void getQuote(final String symbol) {
+    public class QuoteBinder extends Binder {
+        QuoteService getService (){
+            return QuoteService.this;
+        }
+    }
+
+    public void getQuote(final String symbol, final Handler handler) {
         Thread t = new Thread() {
             @Override
             public void run() {
@@ -50,7 +52,9 @@ public class QuoteService extends IntentService {
                     }
 
                     JSONObject stockObject = new JSONObject(response);
-                    Log.d("Saved stock data", stockObject.toString());
+                    Message msg = Message.obtain();
+                    msg.obj = stockObject;
+                    handler.sendMessage(msg);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -58,5 +62,4 @@ public class QuoteService extends IntentService {
         };
         t.start();
     }
-
 }
